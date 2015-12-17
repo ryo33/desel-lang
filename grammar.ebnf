@@ -1,0 +1,48 @@
+not = "!";
+minus = "-";
+and = "&";
+prefix-of-set = "@";
+prefix-of-element = "%";
+l-paren = "(";
+r-paren = ")";
+w = ? whitespace characters ?;
+ws = { w };
+wws = w, ws;
+newline = ? newline characters ?;
+printables = { ? printable UTF-8 characters ? };
+utf-characters = { ? all UTF-8 characters ? };
+
+statements = { statement };
+statement = set-definition |
+            element-definition |
+            sets-definition |
+            elements-definition |
+            comment;
+
+expression = "(", expression, ")"
+           | expression-and, { wws, [ minus, ws ], expression-and };
+expression-and = expression-set, { wws, and, ws, expression-set };
+expression-set = [ not, ws ], set-with-prefix;
+
+set-definition = set-with-prefix, [ homonymous-element ], { wws, set-definition-item }, ws, newline, { addition-set-definition };
+addition-set-definition = prefix-of-set, { wws, set-definition-item }, ws, newline;
+set-definition-item = element | expression;
+
+element-definition = element-with-prefix, [ homonymous-set ], { wws, element-definition-item, }, ws, newline, { addition-element-definition };
+addition-element-definition = prefix-of-element, { wws, element-definition-item }, ws, newline;
+element-definition-item = set | not, ws, set-with-prefix;
+
+sets-definition = 2 * prefix-of-set, { wws, sets-definition-item };
+sets-definition-item = set, [ homonymous-element ], { wws, element-with-prefix };
+
+elements-definition = 2 * prefix-of-element, { wws, elements-definition-item };
+elements-definition-item = element, [ homonymous-set ], { wws, expression };
+
+homonymous-set = ws, prefix-of-element;
+homonymous-element = ws, prefix-of-element;
+
+set = [ prefix-of-set ], label;
+element = [ prefix-of-element ] | label;
+set-with-prefix = prefix-of-set, label;
+element-with-prefix = prefix-of-element, label;
+label = '"', utf-characters, '"' | printables;
