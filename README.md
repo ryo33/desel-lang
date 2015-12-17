@@ -10,26 +10,30 @@ Its name and syntax still might be changed.
 * Supports UTF-8
 
 ## Example
-Writing following sets in Desel.  
+### Mathematical
 A = { a, b, c }  
-h ∈ B  
-B = { d, e, f, g, h }  
-C = { c, d, e }  
-i ∈ D, j ∈ D  
-D = { i, j, k }  
-E = { x | x ∈ A and x ∈ C, x ∈ D, x ∈ { x, y, z } }  
-F = { x | x ∈ A and x ∈ B and x ∈ C }  
-```setdl
+c ∈ B, c ∈ C,  
+d ∈ B, e ∈ B, e ∈ C  
+B = { x | x ∈ A, x ∈ { d, e } }  
+C = { x | x ∈ A and x ∈ C, x ∈ B, x ∈ { e, x, y, z } }  
+```desel
 %A a b c
-@h B
-%B d e
-% f
-% g
-@@ i %D j %D
-%% C @c @d @e D @k
-%E %A & %C %D x y z
-%F %A & %B & %C
+@c B C
+@@ d %B e %B %C
+%B %A
+%C %A & %C %B x y z
 ```
+### Tagging
+```desel
+@"html/dog.html" dog html
+@"image/dog.png" dog picture
+@"image/cat.png" cat picture
+%animal %dog %cat
+%animal-pictures %animal & %picture
+```
+### [WIP] Tree-Structured Data
+### [WIP] Config File
+### [WIP] [WIP]
 
 ## Syntax
 
@@ -39,7 +43,39 @@ F = { x | x ∈ A and x ∈ B and x ∈ C }
 3. All lines not beginning with `@` or `%` are ignored.
 4. `@` means `Elements` and `%` means `Sets`.
 
-### [WIP] Single set definition
+### Single set definition
+This defines a set named `A`  
+```desel
+%A
+```
+Names can be wrapped by `"` or `'`.  
+```desel
+%"This is the name."
+```
+Elements can be added after set definitions.  
+```desel
+%A element1 "This is the element2." @"Specifies prefix" ! "This is not contained."
+```
+You can also write like this;  
+```desel
+%A element1
+%  "This is the element2."
+%
+
+%  @"Specifies prefix" !"This is not contained."
+```
+Expressions also can be added the same as elements.  
+```desel
+%A %B !%C - %D %E
+%  %B & !( %C - %D * %E )
+```
+You can add homonymous element by writing a prefix just after set's name.  
+```desel
+%A @
+%B@
+%C   @ "Of course, you can add elements after this."
+```
+
 ### [WIP] Multiple sets definition
 ### [WIP] Single element definition
 ### [WIP] Multiple elements definition
