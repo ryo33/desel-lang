@@ -10,8 +10,8 @@ ws = { w };
 wws = w, ws;
 newline = ? newline characters ?;
 ws-newline = ws, newline;
-printables = { ? printable UTF-8 characters ? };
-utf-characters = { ? all UTF-8 characters, excluding newline characters ? };
+printables = ? printable UTF-8 encoded characters ?;
+utf-characters = ? UTF-8 encoded characters escaped properly, excluding newline characters ?;
 not-ws = not, ws;
 not-wws = not, wws;
 opt-not-ws = [ not-ws ];
@@ -24,39 +24,35 @@ statement = set-definition |
             elements-definition |
             comment;
 
-expression = opt-not-ws, "(", ws, expression, ws, ")"
+expression = opt-not-ws, wrapped-expression;
            | expression-and, { ( ws, minus, ws | wws ), expression-and };
 expression-and = expression-min, { ws, and, ws, expression-min };
-expression-min = opt-not-ws, set-with-prefix;
+expression-min = set-with-prefix-opt-not;
+wrapped-expression = "(", ws, expression, ws, ")";
 
 set-definition = set-with-prefix, [ homonymous-element ],
                  { wws, set-definition-item }, inline-comment, ws-newline,
-                 { additional-set-definition, inline-comment, ws-newline };
-additional-set-definition = prefix-of-set, { wws, set-definition-item }
-                          | comment;
-set-definition-item = opt-not-wws, element
-                    | opt-not-ws, element-with-prefix
-                    | expression;
+                 { comment | additional-set-definition, inline-comment, ws-newline };
+additional-set-definition = prefix-of-set, { wws, set-definition-item };
+set-definition-item = element-with-opt-not | expression;
 
 element-definition = element-with-prefix, [ homonymous-set ],
                      { wws, element-definition-item, }, inline-comment, ws-newline,
-                     { additional-element-definition, inline-comment, ws-newline };
-additional-element-definition = prefix-of-element, { wws, element-definition-item }
-                              | comment;
-element-definition-item = opt-not-wws, set
-                        | opt-not-ws, set-with-prefix;
+                     { comment | additional-element-definition, inline-comment, ws-newline };
+additional-element-definition = prefix-of-element, { wws, element-definition-item };
+element-definition-item = set-with-opt-not;
 
 sets-definition = 2 * prefix-of-set,
                   { wws, sets-definition-item },
                   inline-comment, ws-newline;
 sets-definition-item = set, [ homonymous-element ],
-                       { wws, opt-not-ws, element-with-prefix };
+                       { wws, ( element-with-prefix-and-opt-not | wrapped-expression ) };
 
 elements-definition = 2 * prefix-of-element,
                       { wws, elements-definition-item },
                       inline-comment, ws-newline;
 elements-definition-item = element, [ homonymous-set ],
-                           { wws, opt-not-ws, set-with-prefix };
+                           { wws, set-with-prefix-and-opt-not };
 
 homonymous-set = ws, prefix-of-element;
 homonymous-element = ws, prefix-of-element;
@@ -65,8 +61,16 @@ set = [ prefix-of-set ], label;
 element = [ prefix-of-element ], label;
 set-with-prefix = prefix-of-set, label;
 element-with-prefix = prefix-of-element, label;
-label = '"', utf-characters, '"'
-      | "'", utf-characters, "'"
-      | printables;
+set-with-opt-not = set-with-prefix-and-opt-not
+                 | label-with-opt-not;
+set-with-prefix-and-opt-not = opt-not-ws, element-with-prefix;
+element-with-opt-not = element-with-prefix-and-opt-not
+                     | label-with-opt-not;
+element-with-prefix-and-opt-not = opt-not-ws, element-with-prefix;
+label-with-opt-not = opt-not-ws, wrapped-label
+                   | opt-not-wws, label;
+label = printables | wrapped_label;
+wrapped-label = '"', utf-characters, '"'
+              | "'", utf-characters, "'";
 inline-comment = ws, prefix-of-inline-comment, utf-characters;
 comment = prefix-of-comment, utf-characters, newline;
