@@ -12,6 +12,8 @@ Its syntax still might be changed.
 * Desel is case sensitive.
 * Desel only allows UTF-8 encoded characters.
 * Desel treats `LF` and `CRLF` as newline.
+  
+You can read the syntax description of Desel in [grammar.ebnf](grammar.ebnf).  
 
 ## Example
 
