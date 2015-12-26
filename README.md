@@ -2,7 +2,7 @@
 A Sets Definition/Description Language.  
   
 Desel should be pronounced like Diesel.  
-Version: 0.1.0  
+Version: 0.1.1  
 Its syntax still might be changed.  
 
 ## Feature

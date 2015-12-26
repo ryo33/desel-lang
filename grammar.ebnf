@@ -10,7 +10,7 @@ ws = { w };
 wws = w, ws;
 newline = ? newline characters ?;
 ws-newline = ws, newline;
-printables = ? printable UTF-8 encoded characters ?;
+label-characters = ? printable UTF-8 encoded characters, excluding '!', '-', '&', '@', '%', '(', ')', and '#' ?;
 utf-characters = ? UTF-8 encoded characters escaped properly, excluding newline characters ?;
 not-ws = not, ws;
 not-wws = not, wws;
@@ -69,7 +69,7 @@ element-with-opt-not = element-with-prefix-and-opt-not
 element-with-prefix-and-opt-not = opt-not-ws, element-with-prefix;
 label-with-opt-not = opt-not-ws, wrapped-label
                    | opt-not-wws, label;
-label = printables | wrapped_label;
+label = label-characters | wrapped_label;
 wrapped-label = '"', utf-characters, '"'
               | "'", utf-characters, "'";
 inline-comment = ws, prefix-of-inline-comment, utf-characters;
