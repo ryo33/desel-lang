@@ -54,7 +54,7 @@ elements-definition = 2 * prefix-of-element,
 elements-definition-item = element, [ homonymous-set ],
                            { wws, set-with-prefix-and-opt-not };
 
-homonymous-set = ws, prefix-of-element;
+homonymous-set = ws, prefix-of-set;
 homonymous-element = ws, prefix-of-element;
 
 set = [ prefix-of-set ], label;
