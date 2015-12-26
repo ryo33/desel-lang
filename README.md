@@ -2,7 +2,7 @@
 A Sets Definition/Description Language.  
   
 Desel should be pronounced like Diesel.  
-Version: 0.1.1  
+Version: 0.1.2  
 Its syntax still might be changed.  
 
 ## Feature
@@ -80,9 +80,14 @@ Note: All sets in expressions requires a prefix, `%`.
   
 You can add homonymous element by adding `@` just after set's name.  
 ```desel
-%A @ # Of course, you can add elements after this.
+%A @ # Same as "%A A"
 %B@
-%C   @ a b c
+%C   @ a b c # Of course, you can add something after homonymous element.
+```
+  
+You can add homonymous set of elements by adding `%` just after their names.  
+```desel
+%A a% b % # Same as "%A a %a b %b
 ```
 
 ### Single element definition

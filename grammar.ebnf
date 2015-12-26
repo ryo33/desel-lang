@@ -34,7 +34,8 @@ set-definition = set-with-prefix, [ homonymous-element ],
                  { wws, set-definition-item }, inline-comment, ws-newline,
                  { comment | additional-set-definition, inline-comment, ws-newline };
 additional-set-definition = prefix-of-set, { wws, set-definition-item };
-set-definition-item = element-with-opt-not | expression;
+set-definition-item = element-with-opt-not, homonymous-set
+                    | expression;
 
 element-definition = element-with-prefix, [ homonymous-set ],
                      { wws, element-definition-item, }, inline-comment, ws-newline,
