@@ -1,8 +1,8 @@
 not = "!".
 minus = "-".
 and = "&".
-prefix_of_set = "@".
-prefix_of_element = "%".
+prefix_of_set = "%".
+prefix_of_element = "@".
 prefix_of_inline_comment = "#".
 prefix_of_comment = . // ? all UTF-8 characters excluding `@` and `%` ?.
 w = . // ? whitespace character ?.
