@@ -2,33 +2,33 @@
 A Sets Definition/Description Language.  
   
 Desel should be pronounced like Diesel.  
-Version: 0.1.2  
+Version: 0.2.0  
 Its syntax still might be changed.  
+You can read the syntax description of Desel in [grammar.ebnf](grammar.ebnf).  
 
 ## Feature
-* *Minimal*, *Readable*, and *Flexible* Syntax
+* *Minimal*
+* *Readable*
+* *Flexible*
 
 ## Spec
-* Desel is case sensitive.
-* Desel only allows UTF-8 encoded characters.
-* Desel treats `LF` and `CRLF` as newline.
+* Line oriented
+* Case sensitive
+* UTF-8
   
-You can read the syntax description of Desel in [grammar.ebnf](grammar.ebnf).  
 
 ## Example
 
 ### Mathematical
 A = { a, b, c }  
-c ∈ B, c ∈ C,  
-d ∈ B, e ∈ B, e ∈ C  
 B = { x | x ∈ A, x ∈ { d, e } }  
-C = { x | x ∈ A and x ∈ C, x ∈ B, x ∈ { e, x, y, z } }  
+C = { x | x ∈ A and x ∈ B, x ∈ { c, e, x, y, z } }  
 ```desel
 %A a b c
 @c B C
-@@ d %B e %B %C
+@@ @d B @e B C
 %B %A
-%C %A & %C %B x y z
+%C %A & %B x y z
 ```
 
 ### Tagging
@@ -43,21 +43,22 @@ C = { x | x ∈ A and x ∈ C, x ∈ B, x ∈ { e, x, y, z } }
 ## Syntax
 
 ### Basic
-* `%` means `Sets` and `@` means `Elements`.
 * Desel is a line oriented language.
+* `%` means `Sets` and `@` means `Elements`.
 * All Desel's lines are beginning with `@` or `%`.
-* All lines not beginning with `@` or `%` are ignored.
-* Characters after `#` are ignored.
+* All lines not beginning with `@` or `%` are ignored. (comment)
+* Characters after `#` are ignored. (comment)
 
 ### Single set definition
-This defines a set named `A`.  
+
+This defines a set labeled as `A`.  
 ```desel
 %A
 ```
 Names can be wrapped by `"` or `'`.  
 ```desel
-%"This is the name."
-%'name'
+%"This is the label."
+%'label'
 ```
 Elements can be added after set definitions.  
 ```desel
@@ -76,22 +77,23 @@ Expressions also can be added the same as elements.
 %A %B !%C - %D %E
 %  %B & !( %C - %D & %E )
 ```
-Note: All sets in expressions requires a prefix, `%`.  
+Note: A prefix is required for all sets in expressions.  
   
-You can add homonymous element by adding `@` just after set's name.  
+You can add homonymous element by adding `@` just after set's label.  
 ```desel
 %A @ # Same as "%A A"
 %B@
-%C   @ a b c # Of course, you can add something after homonymous element.
+%C   @ a b c # Off course, you can add something after homonymous element.
 ```
   
-You can add homonymous set of elements by adding `%` just after their names.  
+You can add homonymous set of elements by adding `%` just after their labels.  
 ```desel
 %A a% b % # Same as "%A a %a b %b
 ```
 
 ### Single element definition
-This defines a elements named `a`, `b`, and `c`.  
+
+This defines a elements labeled as `a`, `b`, and `c`.  
 ```desel
 @a
 @"b"
@@ -102,19 +104,20 @@ Sets which contains the element or don't can be specified after element definiti
 @a A %B     # %A and %B contain @a,
 @  ! C !%D  # %C and %D don't.
 ```
-You can add homonymous set by adding `%` just after element's name.  
+You can add homonymous set by adding `%` just after element's label.  
 ```desel
-@a % # You can write sets after this.
+@a % # You can add sets after this.
 @a%
 @a  % A ! B C
 ```
 
 ### Multiple sets definition
+
 You can write multiple sets in one line by using `%%`.  
 ```desel
-%% A @a @b %B @c @d C @ !@e
+%% %A @a @b %B c d %C @ ! e
 ```
-Note: All elements in multiple sets definition syntax requires a prefix, `@`.  
+Note: A prefix is required for all sets in multiple sets definition syntax.  
   
 This is the same as the definitions below.  
 ```desel
@@ -122,23 +125,18 @@ This is the same as the definitions below.
 %B c d
 %C @ !@e
 ```
-If you want to convert the definitions below to multiple sets definition syntax,  
+It can also contain expressions.  
 ```desel
-%A a b c %B
-%B %C - %D & %E
-%C !(%D - %E)
-```
-use `(` and `)` to cover up sets and expressions like this;  
-```desel
-%% A @a @b @c (%B) B (%C - %D & %E) C (!(%D - %E))
+%% %A @a @b @c (%B) %B (%C - %D & %E) %C !(%D - %E)
 ```
 
 ### Multiple elements definition
+
 You can write multiple elements in one line by using `@@`.  
 ```desel
-@@ a %A %B @b %B %C c % !%D
+@@ @a %A %B @b B C @c % !D
 ```
-Note: All sets in multiple elements definition syntax requires a prefix, `%`.  
+Note: A prefix is required for all elements in multiple sets definition syntax.  
   
 This is the same as the definitions below.  
 ```desel

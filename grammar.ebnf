@@ -4,56 +4,59 @@ and = "&".
 prefix_of_set = "%".
 prefix_of_element = "@".
 prefix_of_inline_comment = "#".
-prefix_of_comment = . // ? all UTF-8 characters excluding `@` and `%` ?.
+prefix_of_comment = . // ? all UTF-8 characters excluding `@` `%` and newline characters ?.
 w = . // ? whitespace character ?.
 Ws = { w }.
 Wws = w Ws.
 newline = . // ? newline characters ?.
-WsNewline = Ws newline.
+WsNewline = Ws ( newline | Eof ).
 label_characters = . // ? printable UTF-8 encoded characters excluding '!' '-' '&' '@' '%' '(' ')' and '#' ?.
 utf_characters = . // ? UTF-8 encoded characters escaped properly excluding newline characters ?.
+double_quote_characters = . // ? UTF-8 encoded characters escaped properly excluding newline characters and double quote ?.
+single_quote_characters = . // ? UTF-8 encoded characters escaped properly excluding newline characters and single quote ?.
 NotWs = not Ws.
 NotWws = not Wws.
 OptNotWs = [ NotWs ].
 OptNotWws = [ NotWws ].
 
 Statements = { Statement }.
-Statement = SetDefinition |
-            ElementDefinition |
-            SetsDefinition |
-            ElementsDefinition |
-            Comment.
+Statement = SetDefinition
+Statement = SetDefinition
+            | ElementDefinition
+            | SetsDefinition
+            | ElementsDefinition
+            | Comment.
 
-Expression = OptNotWs WrappedExpression
-           | ExpressionAnd { ( Ws minus Ws | Wws ) ExpressionAnd }.
-ExpressionAnd = ExpressionMin { Ws and Ws ExpressionMin }.
-ExpressionMin = SetWithPrefixAndOptNot.
-WrappedExpression = "(" Ws Expression Ws ")".
+Expression = ExpressionA { Ws minus Ws ExpressionA }.
+ExpressionA = ExpressionB { Ws and Ws ExpressionB }.
+ExpressionB = SetWithPrefixAndOptNot
+            | OptNotWs WrappedExpression.
+WrappedExpression = Ws "(" Ws Expression { Wws Expression } Ws ")".
 
 SetDefinition = SetWithPrefix [ HomonymousElement ]
-                 { Wws SetDefinitionItem } InlineComment WsNewline
-                 { Comment | AdditionalSetDefinition InlineComment WsNewline }.
+                { Wws SetDefinitionItem } InlineComment WsNewline
+                { AdditionalSetDefinition InlineComment WsNewline | Comment }.
 AdditionalSetDefinition = prefix_of_set { Wws SetDefinitionItem }.
 SetDefinitionItem = ElementWithOptNot HomonymousSet
-                    | Expression.
+                  | Expression.
 
 ElementDefinition = ElementWithPrefix [ HomonymousSet ]
-                     { Wws ElementDefinitionItem } InlineComment WsNewline
-                     { Comment | AdditionalElementDefinition InlineComment WsNewline }.
+                    { Wws ElementDefinitionItem } InlineComment WsNewline
+                    { AdditionalElementDefinition InlineComment WsNewline | Comment }.
 AdditionalElementDefinition = prefix_of_element { Wws ElementDefinitionItem }.
 ElementDefinitionItem = SetWithOptNot.
 
 SetsDefinition = prefix_of_set prefix_of_set
-                  { Wws SetsDefinitionItem }
-                  InlineComment WsNewline.
-SetsDefinitionItem = Set [ HomonymousElement ]
-                       { Wws ( ElementWithPrefixAndOptNot | WrappedExpression ) }.
+                 { Wws SetsDefinitionItem }
+                 InlineComment WsNewline.
+SetsDefinitionItem = SetWithPrefix [ HomonymousElement ]
+                     { OptNotWs WrappedExpression | ElementWithOptNot [ HomonymousSet ] }.
 
 ElementsDefinition = prefix_of_element prefix_of_element
-                      { Wws ElementsDefinitionItem }
-                      InlineComment WsNewline.
-ElementsDefinitionItem = Element [ HomonymousSet ]
-                           { Wws SetWithPrefixAndOptNot }.
+                     { Wws ElementsDefinitionItem }
+                     InlineComment WsNewline.
+ElementsDefinitionItem = ElementWithPrefix [ HomonymousSet ]
+                         { Wws SetWithOptNot }.
 
 HomonymousSet = Ws prefix_of_set.
 HomonymousElement = Ws prefix_of_element.
@@ -63,15 +66,16 @@ Element = [ prefix_of_element ] Label.
 SetWithPrefix = prefix_of_set Label.
 ElementWithPrefix = prefix_of_element Label.
 SetWithOptNot = SetWithPrefixAndOptNot
-                 | LabelWithOptNot.
+              | LabelWithOptNot.
 SetWithPrefixAndOptNot = OptNotWs ElementWithPrefix.
 ElementWithOptNot = ElementWithPrefixAndOptNot
-                     | LabelWithOptNot.
+                  | LabelWithOptNot.
 ElementWithPrefixAndOptNot = OptNotWs ElementWithPrefix.
 LabelWithOptNot = OptNotWs WrappedLabel
-                   | OptNotWws Label.
+                | OptNotWws Label.
 Label = label_characters | WrappedLabel.
-WrappedLabel = "\"" utf_characters "\""
-              | "'" utf_characters "'".
-InlineComment = Ws prefix_of_inline_comment utf_characters.
-Comment = prefix_of_comment utf_characters newline.
+WrappedLabel = "\"" double_quote_characters "\""
+             | "'" single_quote_characters "'".
+InlineComment = Ws [ prefix_of_inline_comment utf_characters ].
+Comment = WsNewline
+        | prefix_of_comment { utf_characters } WsNewline.
